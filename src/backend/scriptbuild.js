@@ -119,9 +119,51 @@ export default function(task) {
 	let inject_keys = Object.keys(inject);
 	let inject_values = Object.values(inject);
 	task = Object.assign({}, utils.TASK_EXT, task);
-	let module = {exports: {}};
-	new Function("exports", "module", ...inject_keys, task.code)(module.exports, module, ...inject_values);
+	let module = { exports: {} };
+	new Function('exports', 'module', ...inject_keys, task.code)(module.exports, module, ...inject_values);
+	task.filter = async function(result) {
+		let base = {
+			summary: "NO_SUMMARY",
+			detail: [
+				{
+					domain: task.domains[0],
+					url: "#",
+					message: "NO_MESSAGE",
+					errno: task.success_at < task.failure_at,
+				},
+			],
+		};
+		if ("object" == typeof result) {
+			base = Object.assign(base, result);
+		} else {
+			base.summary = result;
+			base.detail[0].message = result;
+			if (task.loginURL)
+				base.detail[0].url = task.loginURL.match(/([^:]+:\/\/[^\/]+)+(.*)/)[Number(!base.detail[0].errno)];
+		}
+		return base;
+	};
 	task.check = module.exports.check;
-	task.run = module.exports.run;
+	task.run = async function(param) {
+		return await module.exports.run(param, async function version(
+			version,
+			soulsign = chrome.runtime.getManifest().version
+		) {
+			try {
+				let diff = {
+					version: "string" == typeof version ? version.split(".") : version,
+					soulsign: soulsign.split("."),
+					match: 0,
+				};
+				for (let idx = 0; idx < diff.soulsign.length; idx++) {
+					if (diff.version[idx] >= diff.soulsign[idx]) diff.match++;
+				}
+				if (diff.soulsign.length <= diff.match) return true;
+				else return false;
+			} catch (e) {
+				console.error(e);
+			}
+		});
+	};
 	return task;
 }
