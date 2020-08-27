@@ -3,13 +3,14 @@
  */
 import axios from "axios";
 import utils from "./utils";
+import compareVersions from "compare-versions";
 
 /**
  *
  * @param {soulsign.Task} task 脚本允许访问的
  */
 export default function(task) {
-	let request = axios.create({timeout: 10e3});
+	let request = axios.create({ timeout: 10e3 });
 	request.interceptors.request.use(function(config) {
 		let m = /https?:\/\/([^:\/]+)/.exec(config.url);
 		if (!m) return Promise.reject(`domain配置不正确`);
@@ -17,8 +18,8 @@ export default function(task) {
 		if (
 			!task.domains.reduce(function(a, b) {
 				if (a) return true;
-				if ('*' == b) return true;
-				let dd = b.split('.');
+				if ("*" == b) return true;
+				let dd = b.split(".");
 				if (dd.length != ss.length) return false;
 				for (let i = 0; i < ss.length; i++) {
 					if (dd[i] != "*" && ss[i] != dd[i]) return false;
@@ -54,8 +55,8 @@ export default function(task) {
 		 */
 		require(url) {
 			if (!grant.has("require")) return Promise.reject("需要@grant require");
-			return axios.get(url, {validateStatus: () => true}).then(function({data}) {
-				let module = {exports: {}};
+			return axios.get(url, { validateStatus: () => true }).then(function({ data }) {
+				let module = { exports: {} };
 				new Function("exports", "module", data)(module.exports, module);
 				return module.exports;
 			});
@@ -68,7 +69,7 @@ export default function(task) {
 		getCookie(url, name) {
 			if (!grant.has("cookie")) return Promise.reject("需要@grant cookie");
 			return new Promise((resolve, reject) => {
-				chrome.cookies.get({url, name}, (x) => resolve(x && x.value));
+				chrome.cookies.get({ url, name }, (x) => resolve(x && x.value));
 			});
 		},
 		/**
@@ -80,7 +81,7 @@ export default function(task) {
 		setCookie(url, name, value) {
 			if (!grant.has("cookie")) return Promise.reject("需要@grant cookie");
 			return new Promise((resolve, reject) => {
-				chrome.cookies.set({url, name, value}, (x) => resolve(x && x.value));
+				chrome.cookies.set({ url, name, value }, (x) => resolve(x && x.value));
 			});
 		},
 		$(html) {
@@ -92,11 +93,11 @@ export default function(task) {
 			if (!grant.has("notify")) throw "需要@grant notify";
 			let n = new Notification(task.name, {
 				body,
-				icon: 'chrome://favicon/https://' + task.domains[0]
+				icon: "chrome://favicon/https://" + task.domains[0],
 			});
 			n.onclick = function() {
 				this.close();
-				if (url) chrome.tabs.create({url});
+				if (url) chrome.tabs.create({ url });
 			};
 			setTimeout(function() {
 				n.close();
@@ -120,7 +121,7 @@ export default function(task) {
 	let inject_values = Object.values(inject);
 	task = Object.assign({}, utils.TASK_EXT, task);
 	let module = { exports: {} };
-	new Function('exports', 'module', ...inject_keys, task.code)(module.exports, module, ...inject_values);
+	new Function("exports", "module", ...inject_keys, task.code)(module.exports, module, ...inject_values);
 	task.filter = async function(result) {
 		let base = {
 			summary: "NO_SUMMARY",
@@ -149,20 +150,7 @@ export default function(task) {
 			version,
 			soulsign = chrome.runtime.getManifest().version
 		) {
-			try {
-				let diff = {
-					version: "string" == typeof version ? version.split(".") : version,
-					soulsign: soulsign.split("."),
-					match: 0,
-				};
-				for (let idx = 0; idx < diff.soulsign.length; idx++) {
-					if (diff.version[idx] >= diff.soulsign[idx]) diff.match++;
-				}
-				if (diff.soulsign.length <= diff.match) return true;
-				else return false;
-			} catch (e) {
-				console.error(e);
-			}
+			return compareVersions(soulsign, version);
 		});
 	};
 	return task;

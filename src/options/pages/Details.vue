@@ -42,7 +42,7 @@
 		</mu-data-table>
 		<mu-flex v-if="selects.chip.length" align-items="center" style="padding: 8px;" wrap="wrap" fill>
 			<mu-flex align-items="start" justify-content="start" fill wrap="wrap">
-				<mu-tooltip :content="'配置复制内容'" :placement="'bottom'">
+				<mu-tooltip :content="'配置复制内容'" :placement="'left'">
 					<mu-flex align-items="center" justify-content="center">
 						<mu-button class="copy-config" flat color="primary" slot="action" @click="copyConfig">
 							<mu-icon value="filter_4"></mu-icon>
@@ -58,7 +58,7 @@
 				</mu-chip>
 			</mu-flex>
 			<mu-flex align-items="end" justify-content="end" fill wrap="wrap">
-				<mu-tooltip :content="'复制'" :placement="'bottom'">
+				<mu-tooltip :content="'复制'" :placement="'right'">
 					<mu-flex align-items="center" justify-content="center">
 						<mu-button class="copy-button" flat color="primary" slot="action" @click="copySelect(task.result.detail)">
 							<mu-icon value="content_copy"></mu-icon>
@@ -95,7 +95,7 @@ export default {
 			],
 			selects: {
 				chip: [],
-				copy: [],
+				copy: ["url", "domain", "message", "errno"],
 			},
 			configCopy: false,
 			itemDetail: [],
