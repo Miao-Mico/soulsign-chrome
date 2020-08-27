@@ -26,6 +26,8 @@
 20191218: 优化代码结构,支持脚本导出/导入,增加脚本网站  
 20200827: 支持 `查看日志` 页面
 
+![image](https://user-images.githubusercontent.com/42897857/91413377-9a916f80-e87d-11ea-9109-20708287e39d.png)
+
 ### 计划:
 
 1. ~~低版本支持(自带babel)~~ 无明显需求,所以放弃
@@ -92,7 +94,13 @@ exports.check = async function() {
 
 ### 日志配置
 
+预览：
+
+![image](https://user-images.githubusercontent.com/42897857/91413104-3bcbf600-e87d-11ea-99b7-1d3359ad1542.png)
+
 示例：
+
+> `输出` 指 `export.run()` 的返回值
 
 - 标准输出格式<sup>***object***</sup>
 
@@ -104,7 +112,7 @@ exports.check = async function() {
               domain: "www.example.com", // `细节/日志` 中的 `域名`
               url: "https://www.example.com", // `细节/日志` 中的 `域名` 的跳转链接
               message: "获得 1 积分", // `细节/日志` 中的 `消息`，格式同 `执行结果`
-              errno: false, // 成功 ? 0 | false : >=1 | true
+              errno: false, // 成功，errno = (false || 0)；失败，errno = (true || !0)
               log: {
                   data: "some_data",
                   param: {
@@ -122,6 +130,8 @@ exports.check = async function() {
   ```javascript
   "签到成功"
   
+  // 将默认转化为 `标准输出格式`，如下所示
+  // 
   // {
   //     summary: "签到成功",
   //     detail: [
@@ -137,10 +147,10 @@ exports.check = async function() {
 
 说明：
 
-1. 如果你利用 `标准输出格式` 开发，请尽量使用 `exports.run = async function(param, version)` 中的 `version`<sup>*boolean = async function (string)*</sup> 参数控制输出格式，`object` 在旧版本插件中会以 `JSON` 形式展示在 `执行结果` 处，观感可能会很差。
+1. 如果你利用 `标准输出格式` 开发，请尽量使用 `exports.run = async function(param, version)` 中的 `version`<sup>***boolean = async function (string)***</sup> 参数对输出格式做兼容处理，`object` 在旧版本插件中会以 `JSON` 形式展示在 `执行结果` 处，观感可能会很差。
 2. `.log | 额外的其他属性` 的内容完全由脚本内部定义，初衷是更好地开发和请求用户反馈信息，为非必要选项，所以默认不可复制。
 3. `细节/日志` 页面可以 `复选` 分域名 `复制`，默认可复制的信息中有 `domain`, `url`, `message`, `errno`，其他信息需要用户自行开启选项，添加后复制。
-4. `细节/日志` 中的 `域名` 不仅拥有 `执行结果` 的两种颜色，还支持 `errno = 2 : gray`、`errno = 3 : orchid`、`errno = 4 : pink`、`errno = 5 : burlywood`。
+4. `细节/日志` 中的 `域名` 不仅拥有 `执行结果` 的两种颜色，还支持 `errno = 2 : orange`、`errno = 3 : orchid`、`errno = 4 : pink`、`errno = 5 : brown`。
 5. `表单展开项` 中的 `JSON` 树默认仅展开一层。
 
 ### 思路

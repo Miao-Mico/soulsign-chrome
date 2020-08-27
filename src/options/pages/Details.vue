@@ -244,7 +244,7 @@ export default {
 		color: #f44336;
 	}
 	div.errno_2 {
-		color: gray;
+		color: orange;
 	}
 	div.errno_3 {
 		color: orchid;
@@ -253,7 +253,7 @@ export default {
 		color: pink;
 	}
 	div.errno_5 {
-		color: burlywood;
+		color: brown;
 	}
 }
 </style>
